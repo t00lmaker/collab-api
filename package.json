@@ -4,7 +4,12 @@
   "description": "Um projeto para a pratica de Clean Architecture",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "npm test -- --coverage --silent",
+    "test:wacth": "jest --watchAll",
+    "test:staged": "npm test -- --findRelatedTests --silent",
+    "test:coveralls": "npm run test:ci && coveralls < coverage/lcov.info",
+    "lint-staged": "lint-staged"
   },
   "standard": {
     "env": [
