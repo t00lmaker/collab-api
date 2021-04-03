@@ -6,6 +6,11 @@
   "scripts": {
     "test": "jest"
   },
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
   "author": "luanpontes2@gmail.com",
   "license": "MIT",
   "devDependencies": {
