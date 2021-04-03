@@ -1,0 +1,17 @@
+{
+  "name": "clean-node-api",
+  "version": "1.0.0",
+  "description": "Um projeto para a pratica de Clean Architecture",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "luanpontes2@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^4.0.0-beta.5",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.4.3",
+    "standard": "^14.3.1"
+  }
+}
