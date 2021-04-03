@@ -22,4 +22,31 @@ describe('AuthRouter', () => {
 
     expect(response.statusCode === 400)
   })
+
+  it('should return 400 if no secret is provider', () => {
+    const sut = new AuthRouter()
+    const request = {
+      body: {
+        email: 'mail@mail.com'
+      }
+    }
+
+    const response = sut.route(request)
+
+    expect(response.statusCode === 400)
+  })
+
+  it('should return 400 if secret is empty', () => {
+    const sut = new AuthRouter()
+    const request = {
+      body: {
+        secret: '',
+        email: 'mail@mail.com'
+      }
+    }
+
+    const response = sut.route(request)
+
+    expect(response.statusCode === 400)
+  })
 })
