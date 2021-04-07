@@ -1,4 +1,3 @@
-
 const { UnauthorizedError, ServerError } = require('../errors')
 
 module.exports = class Response {

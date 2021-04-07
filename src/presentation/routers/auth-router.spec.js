@@ -1,32 +1,26 @@
-
+const HttpResponse = require('../helpers/http-response')
 class AuthRouter {
   constructor ({ authUseCase } = {}) {
     this.authUseCase = authUseCase
   }
 
-  route (request) {
+  async route (request) {
     try {
       const { email, secret } = request.body
 
       if (!email || !secret) {
-        return {
-          statusCode: 400
-        }
+        return HttpResponse.badRequest()
       }
 
-      if (this.authUseCase.auth(email, secret)) {
-        return {
-          statusCode: 200
-        }
+      const acessToken = await this.authUseCase.auth(email, secret)
+
+      if (acessToken) {
+        return HttpResponse.ok({ token: acessToken })
       } else {
-        return {
-          statusCode: 401
-        }
+        return HttpResponse.unauthorizedError()
       }
     } catch (error) {
-      return {
-        statusCode: 500
-      }
+      return HttpResponse.serverError()
     }
   }
 }
@@ -56,7 +50,7 @@ const createAuthUseCase = () => {
 }
 
 describe('AuthRouter', () => {
-  it('should return 500 if authUseCase not provided', () => {
+  it('should return 500 if authUseCase not provided', async () => {
     const sut = new AuthRouter()
     const request = {
       body: {
@@ -65,21 +59,21 @@ describe('AuthRouter', () => {
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(500)
   })
 
-  it('should return 500 if no body in request', () => {
+  it('should return 500 if no body in request', async () => {
     const { sut } = createSut()
     const request = { }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(500)
   })
 
-  it('should return 400 if no email is provider', () => {
+  it('should return 400 if no email is provider', async () => {
     const { sut } = createSut()
     const request = {
       body: {
@@ -87,12 +81,12 @@ describe('AuthRouter', () => {
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(400)
   })
 
-  it('should return 400 if no secret is provider', () => {
+  it('should return 400 if no secret is provider', async () => {
     const { sut } = createSut()
     const request = {
       body: {
@@ -100,12 +94,12 @@ describe('AuthRouter', () => {
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(400)
   })
 
-  it('should return 400 if secret is empty', () => {
+  it('should return 400 if secret is empty', async () => {
     const { sut } = createSut()
     const request = {
       body: {
@@ -114,27 +108,27 @@ describe('AuthRouter', () => {
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(400)
   })
 
-  it('should return 401 if incorrect credencials', () => {
+  it('should return 401 if incorrect credencials', async () => {
     const { sut, authUseCaseSpy } = createSut()
     authUseCaseSpy.acessToken = null
     const request = {
       body: {
-        secret: '',
+        secret: 'valid_pass',
         email: 'valid@mail.com'
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
-    expect(response.statusCode).toBe(400)
+    expect(response.statusCode).toBe(401)
   })
 
-  it('should return 200 if valid credencial', () => {
+  it('should return 200 if valid credencial', async () => {
     const { sut } = createSut()
     const request = {
       body: {
@@ -143,7 +137,7 @@ describe('AuthRouter', () => {
       }
     }
 
-    const response = sut.route(request)
+    const response = await sut.route(request)
 
     expect(response.statusCode).toBe(200)
   })
