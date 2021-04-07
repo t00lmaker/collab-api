@@ -5,6 +5,12 @@ class AuthRouter {
   }
 
   route (request) {
+    if (!request.body) {
+      return {
+        statusCode: 500
+      }
+    }
+
     const { email, secret } = request.body
     if (!email || !secret) {
       if (this.authUseCase.auth(email, secret)) {
@@ -49,6 +55,15 @@ const createAuthUseCase = () => {
 }
 
 describe('AuthRouter', () => {
+  it('should return 500 if no body in request', () => {
+    const { sut } = createSut()
+    const request = { }
+
+    const response = sut.route(request)
+
+    expect(response.statusCode === 500)
+  })
+
   it('should return 400 if no email is provider', () => {
     const { sut } = createSut()
     const request = {
@@ -77,6 +92,21 @@ describe('AuthRouter', () => {
 
   it('should return 400 if secret is empty', () => {
     const { sut } = createSut()
+    const request = {
+      body: {
+        secret: '',
+        email: 'valid@mail.com'
+      }
+    }
+
+    const response = sut.route(request)
+
+    expect(response.statusCode === 400)
+  })
+
+  it('should return 401 if incorrect credencials', () => {
+    const { sut, authUseCaseSpy } = createSut()
+    authUseCaseSpy.acessToken = null
     const request = {
       body: {
         secret: '',
