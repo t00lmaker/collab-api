@@ -5,33 +5,27 @@ class AuthRouter {
   }
 
   route (request) {
-    if (!request.body) {
+    try {
+      const { email, secret } = request.body
+
+      if (!email || !secret) {
+        return {
+          statusCode: 400
+        }
+      }
+
+      if (this.authUseCase.auth(email, secret)) {
+        return {
+          statusCode: 200
+        }
+      } else {
+        return {
+          statusCode: 401
+        }
+      }
+    } catch (error) {
       return {
         statusCode: 500
-      }
-    }
-
-    if (!this.authUseCase) {
-      return {
-        statusCode: 500
-      }
-    }
-
-    const { email, secret } = request.body
-
-    if (!email || !secret) {
-      return {
-        statusCode: 400
-      }
-    }
-
-    if (this.authUseCase.auth(email, secret)) {
-      return {
-        statusCode: 200
-      }
-    } else {
-      return {
-        statusCode: 401
       }
     }
   }
