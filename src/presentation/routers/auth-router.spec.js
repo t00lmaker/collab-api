@@ -11,20 +11,27 @@ class AuthRouter {
       }
     }
 
+    if (!this.authUseCase) {
+      return {
+        statusCode: 500
+      }
+    }
+
     const { email, secret } = request.body
+
     if (!email || !secret) {
-      if (this.authUseCase.auth(email, secret)) {
-        return {
-          statusCode: 200
-        }
-      } else {
-        return {
-          statusCode: 401
-        }
+      return {
+        statusCode: 400
+      }
+    }
+
+    if (this.authUseCase.auth(email, secret)) {
+      return {
+        statusCode: 200
       }
     } else {
       return {
-        statusCode: 400
+        statusCode: 401
       }
     }
   }
@@ -55,13 +62,27 @@ const createAuthUseCase = () => {
 }
 
 describe('AuthRouter', () => {
+  it('should return 500 if authUseCase not provided', () => {
+    const sut = new AuthRouter()
+    const request = {
+      body: {
+        secret: 'valid_pass',
+        email: 'valid@mail.com'
+      }
+    }
+
+    const response = sut.route(request)
+
+    expect(response.statusCode).toBe(500)
+  })
+
   it('should return 500 if no body in request', () => {
     const { sut } = createSut()
     const request = { }
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 500)
+    expect(response.statusCode).toBe(500)
   })
 
   it('should return 400 if no email is provider', () => {
@@ -74,7 +95,7 @@ describe('AuthRouter', () => {
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 400)
+    expect(response.statusCode).toBe(400)
   })
 
   it('should return 400 if no secret is provider', () => {
@@ -87,7 +108,7 @@ describe('AuthRouter', () => {
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 400)
+    expect(response.statusCode).toBe(400)
   })
 
   it('should return 400 if secret is empty', () => {
@@ -101,7 +122,7 @@ describe('AuthRouter', () => {
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 400)
+    expect(response.statusCode).toBe(400)
   })
 
   it('should return 401 if incorrect credencials', () => {
@@ -116,7 +137,7 @@ describe('AuthRouter', () => {
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 400)
+    expect(response.statusCode).toBe(400)
   })
 
   it('should return 200 if valid credencial', () => {
@@ -130,6 +151,6 @@ describe('AuthRouter', () => {
 
     const response = sut.route(request)
 
-    expect(response.statusCode === 400)
+    expect(response.statusCode).toBe(200)
   })
 })
